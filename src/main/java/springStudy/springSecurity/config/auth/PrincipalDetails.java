@@ -2,12 +2,15 @@ package springStudy.springSecurity.config.auth;
 
 
 
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import springStudy.springSecurity.entity.User;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * 시큐리티 회원 로그인 설정 1
@@ -21,15 +24,26 @@ import java.util.Collection;
  *  정보를 넣어야 하는데 이를 UserDetails이여야 한다.
  *  즉 Session.get -> Authentication -> Authentication.get -> UserDetails(이거로 우리의 User)
  */
-public class PrincipalDetails implements UserDetails { // UserDetails = PrincipalDetails
+@Data
+public class PrincipalDetails implements UserDetails, OAuth2User { // UserDetails = PrincipalDetails
 
     private User user; // 콤 포지
+    private Map<String, Object> attributes;
 
+    // 일반 로그인 시 사용
     public PrincipalDetails(User user) {
         this.user = user;
     }
 
+    // Oauth 로그인 시 사용
+    // attributes의 내용을 기반으로 User를 생성
+    public PrincipalDetails(User user, Map<String, Object> attributes) {
+        this.user = user;
+        this.attributes = attributes;
+    }
+
     // 해당 유저의 권한을 return !
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collect = new ArrayList<>();
@@ -41,7 +55,6 @@ public class PrincipalDetails implements UserDetails { // UserDetails = Principa
         });
         return collect;
     }
-
     @Override
     public String getPassword() {
         return user.getPassword();
@@ -53,24 +66,25 @@ public class PrincipalDetails implements UserDetails { // UserDetails = Principa
     }
 
     // 계정이 만료 되지 않았니??
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
-
     // 계정이 잠기지 않았니?
+
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
-
     // 비밀 번호 유효 기간이 지나지 않았니??
+
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
-
     // 계정이 활성화 할거니?
+
     @Override
     public boolean isEnabled() {
 
@@ -78,5 +92,17 @@ public class PrincipalDetails implements UserDetails { // UserDetails = Principa
         // 현재 시간 - 로그인 시간
 
         return true;
+    }
+
+
+    //OAuth2User 오버라이드
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    @Override
+    public String getName() { // 사용을 잘 안함
+        return attributes.get("sub").toString();
     }
 }

@@ -4,11 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import springStudy.springSecurity.config.auth.PrincipalDetails;
 import springStudy.springSecurity.entity.User;
 import springStudy.springSecurity.repository.UserRepository;
 
@@ -27,9 +31,37 @@ public class IndexController {
         return "index";
     }
 
+    @GetMapping("/test/login")
+    @ResponseBody
+    public String loginTest(Authentication authentication,
+                            @AuthenticationPrincipal PrincipalDetails userDetails){
+//        System.out.println("============test");
+//        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+//        System.out.println("authentication.getPrincipal() = " + principalDetails.getUser());
+//
+//        System.out.println("userDetails.getUsername() = " + userDetails.getUser());
+        return "세션 정보 확인하기";
+
+    }
+
+    @GetMapping("/test/oauth/login")
+    @ResponseBody
+    public String loginOAuthTest(Authentication authentication,
+                                 @AuthenticationPrincipal OAuth2User oAuth2User){
+//        System.out.println("============OAuth test");
+//        OAuth2User principal = (OAuth2User) authentication.getPrincipal();
+//        System.out.println("principal.getAuthorities() = " + principal.getAttributes());
+//
+//        System.out.println("oAuth2User = " + oAuth2User.getAttributes());
+
+        return "세션 Oauth 정보 확인하기";
+
+    }
+
     @GetMapping("/user")
     @ResponseBody
-    public String user(){
+    public String user(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        log.info("username = " + principalDetails.getUser().getUsername());
         return "user";
     }
 

@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import springStudy.springSecurity.config.Oauth.provider.FacebookUserInfo;
 import springStudy.springSecurity.config.Oauth.provider.GoogleUserInfo;
+import springStudy.springSecurity.config.Oauth.provider.NaverUserInfo;
 import springStudy.springSecurity.config.Oauth.provider.OAuth2UserInfo;
 import springStudy.springSecurity.config.PrincipalDetails;
 import springStudy.springSecurity.entity.Role;
@@ -58,7 +59,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
          * providerId = 103683745224940187287
          * 즉, super.loadUser(userRequest).getAttributes()을 토대로 강제 회원가입 시킨다.
          */
-        OAuth2User oAuth2User = super.loadUser(userRequest);
+        OAuth2User oAuth2User = super.loadUser(userRequest); // 유저 정보 가져오기
         System.out.println("oAuth2User.getAttributes() = " + oAuth2User.getAttributes());
 
         // User로 후 처리 시작
@@ -76,6 +77,12 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
             if(createdFacebookUser != null) return createdFacebookUser;
 
+        }else if(userRequest.getClientRegistration().getRegistrationId().equals("naver")){
+            NaverUserInfo naverUserInfo = new NaverUserInfo((Map) oAuth2User.getAttributes().get("response"));
+
+            PrincipalDetails createdNaverUser = saveUser(oAuth2User, naverUserInfo);
+
+            if(createdNaverUser != null)    return createdNaverUser;
         }
 
         return null;

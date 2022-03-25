@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import springStudy.springSecurity.config.auth.PrincipalDetails;
+import springStudy.springSecurity.config.PrincipalDetails;
 import springStudy.springSecurity.entity.Role;
 import springStudy.springSecurity.entity.User;
 import springStudy.springSecurity.repository.UserRepository;

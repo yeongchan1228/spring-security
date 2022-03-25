@@ -1,4 +1,4 @@
-package springStudy.springSecurity.config.auth;
+package springStudy.springSecurity.config;
 
 
 

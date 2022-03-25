@@ -2,10 +2,13 @@ package springStudy.springSecurity.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import springStudy.springSecurity.entity.User;
 import springStudy.springSecurity.repository.UserRepository;
 
@@ -25,16 +28,19 @@ public class IndexController {
     }
 
     @GetMapping("/user")
+    @ResponseBody
     public String user(){
         return "user";
     }
 
     @GetMapping("/admin")
+    @ResponseBody
     public String admin(){
         return "admin";
     }
 
     @GetMapping("/manager")
+    @ResponseBody
     public String manager(){
         return "manager";
     }
@@ -58,6 +64,19 @@ public class IndexController {
         User saveUser = userRepository.save(user); // 패스워드 암호화가 안 되었기 때문에 회원가입은 되나 시큐리티 로그인이 불가능함. -> SecurityConfig에서 설정을 해야 함
         log.info(saveUser.getUsername() + " " + saveUser.getPassword());
         return "redirect:/loginForm";
+    }
+
+    @GetMapping("/info")
+    @ResponseBody
+    @Secured("ROLE_ADMIN") // 특정 메서드에 접근 권한을 설정할 수 있음 -> 시큐리티 설정에서 @EnableGlobalMethodSecurity(securedEnabled = true) 설정 필요.
+    public String info(){
+        return "개인 정보";
+    }
+
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    @GetMapping("/data")
+    public String data(){
+        return "데이터 정보";
     }
 
 }

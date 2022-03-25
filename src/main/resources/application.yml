@@ -24,6 +24,17 @@ spring:
       hibernate:
         format_sql: true
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: 374299965772-1cbitap95r8n22pj959704p6fh8are20.apps.googleusercontent.com
+            clientSecret: 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
+            scope:
+              - email
+              - profile
+
 
 logging:
   level:

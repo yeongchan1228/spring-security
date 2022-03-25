@@ -24,6 +24,9 @@ public class PrincipalDetailsService implements UserDetailsService {
     // 시큐리티 session = Authentication = UserDetails(PrincipalDetails)
     // 해당 함수가 반환되면 Authentication 안에 들어간다.
     // 즉, 시큐리티 session(내부 Authentication(내부 PrincipalDetails))
+    // 우리가 정의한 PrincipalDetails 객체가 Authentication 안에 들어가게 하기 위해 오버라이드 한다.
+    // PrincipalDeatails에는 UserDetails랑 Ouath2User가 들어가야 하므로
+    // 함수 종료 시 @AuthenticationPrincipal 어노테이션이 생성된다.
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User findUser = userRepository.findByUsername(username);

@@ -2,6 +2,7 @@ package springStudy.springSecurity.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -9,6 +10,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 @EnableWebSecurity // 웹 시큐리티 활성 -> 스프링 시큐리티 필터(SecurityConfig)가 스프링 필터 체인에 등록된다.
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true) // 특정 한 개의 메소드만 접근 지정, secured 어노테이션 활성화, preAuthorize 어노테이션 활성화
+// @PreAuthorize, @Secured 차이 -> Secured는 하나의 역할만 통과 가능, PreAuthorize는 여러 역할 통과 가능 hasRole사용.
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean

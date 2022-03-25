@@ -8,6 +8,9 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import springStudy.springSecurity.config.Oauth.provider.FacebookUserInfo;
+import springStudy.springSecurity.config.Oauth.provider.GoogleUserInfo;
+import springStudy.springSecurity.config.Oauth.provider.OAuth2UserInfo;
 import springStudy.springSecurity.config.PrincipalDetails;
 import springStudy.springSecurity.entity.Role;
 import springStudy.springSecurity.entity.User;
@@ -32,10 +35,8 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
      */
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-//        System.out.println("userRequest.getClientRegistration() = " + userRequest.getClientRegistration()); // 어떤 Oauth로 로그인 했는지?
-//        System.out.println("userRequest.getAccessToken = " + userRequest.getAccessToken());
-//        System.out.println("userRequest.getClientRegistration().getRegistrationId() = " + userRequest.getClientRegistration().getRegistrationId());
-//        System.out.println("userRequest.getClientRegistration().getClientId() = " + userRequest.getClientRegistration().getClientId());
+        System.out.println("userRequest.getClientRegistration() = " + userRequest.getClientRegistration()); // 어떤 Oauth로 로그인 했는지?
+        System.out.println("userRequest.getAccessToken = " + userRequest.getAccessToken());
 
         // 구글 로그인 버튼 -> 구글 로그인 창 -> 로그인 완료 -> code를 리턴(Oauth-client 라이브러리가 받아줌) -> AccessToken 요청
         // 여기까지가 userRequest 정보 -> 이런 userRequest 정보를 바탕으로 회원 프로필을 받아야 한다.(super.loadUser() 함수를 통해) -> 회원 프로필
@@ -58,36 +59,50 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
          * 즉, super.loadUser(userRequest).getAttributes()을 토대로 강제 회원가입 시킨다.
          */
         OAuth2User oAuth2User = super.loadUser(userRequest);
-        Map<String, Object> userInfo = oAuth2User.getAttributes();
+        System.out.println("oAuth2User.getAttributes() = " + oAuth2User.getAttributes());
 
         // User로 후 처리 시작
-        String provider = userRequest.getClientRegistration().getClientId(); // google
-        String providerId = userInfo.get("sub").toString();
-        String username = provider + "_" + providerId;
-        String password = encoder.encode("겟인데어");
-        String email = userInfo.get("email").toString();
+        if(userRequest.getClientRegistration().getRegistrationId().equals("google")) {
+            GoogleUserInfo googleUserInfo = new GoogleUserInfo(oAuth2User.getAttributes());
 
-        User findUser = userRepository.findByUsername(username);
-        if(findUser == null) {
+            PrincipalDetails createdGoogleUser = saveUser(oAuth2User, googleUserInfo);
 
-            User createdUser = User.createUser()
-                    .provider(provider)
-                    .providerId(providerId)
-                    .username(username)
-                    .password(password)
-                    .email(email)
-                    .role(Role.ROLE_USER)
-                    .build();
+            if (createdGoogleUser != null) return createdGoogleUser;
 
-            User saveUser = userRepository.save(createdUser);
-            log.info("구글 생성 = " + saveUser.getEmail());
+        }else if(userRequest.getClientRegistration().getRegistrationId().equals("facebook")){
+            FacebookUserInfo facebookUserInfo = new FacebookUserInfo(oAuth2User.getAttributes());
 
-            return new PrincipalDetails(createdUser, userInfo);
-        } else{
-            log.info("이미 생성된 사용자");
+            PrincipalDetails createdFacebookUser = saveUser(oAuth2User, facebookUserInfo);
+
+            if(createdFacebookUser != null) return createdFacebookUser;
+
         }
 
         return null;
 
+    }
+
+    private PrincipalDetails saveUser(OAuth2User oAuth2User, OAuth2UserInfo userInfo) {
+        User findUser = userRepository.findByUsername(userInfo.getName());
+
+        if (findUser == null) {
+
+            User createdUser = User.createUser()
+                    .provider(userInfo.getProvider())
+                    .providerId(userInfo.getProviderId())
+                    .username(userInfo.getName())
+                    .password(encoder.encode("겟인데어"))
+                    .email(userInfo.getEmail())
+                    .role(Role.ROLE_USER)
+                    .build();
+            userRepository.save(createdUser);
+
+            log.info(userInfo.getProvider() + " 사용자 생성 : " + userInfo.getName());
+
+            return new PrincipalDetails(createdUser, oAuth2User.getAttributes());
+        } else {
+            log.info("이미 생성된 " + userInfo.getProvider() + " 사용자");
+        }
+        return null;
     }
 }

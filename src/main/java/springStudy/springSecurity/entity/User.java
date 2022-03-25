@@ -28,4 +28,7 @@ public class User {
     @Column(updatable = false)
     private LocalDateTime createdDate;
 
+    private String provider;
+    private String providerId;
+
 }

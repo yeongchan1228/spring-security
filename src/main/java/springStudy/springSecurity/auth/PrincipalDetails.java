@@ -39,7 +39,7 @@ public class PrincipalDetails implements UserDetails { // UserDetails = Principa
                 return user.getRole().toString();
             }
         });
-        return null;
+        return collect;
     }
 
     @Override

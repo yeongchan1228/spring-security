@@ -20,13 +20,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception { // http 스프링 시큐리티 설정
         http.csrf().disable(); // 위조 요청을 막기 위한 것으로 활성화 되면 crsf 토큰도 같이 보내야 한다.
         http.authorizeRequests() // 요청 권한 설정
-                .antMatchers("/user/**").authenticated() // /user 포함 아래의 모든 요청은 인증이 필요하다.
+                .antMatchers("/user/**").authenticated() // /user 포함 아래의 모든 요청은 인증이 필요하다. -> /user는 인증만 되면 필요하다.
                 .antMatchers("/manager/**").access("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
                 .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
                 .anyRequest().permitAll() // 다른 주소는 모두 허용
                 .and()
                 .formLogin()
                 .loginPage("/loginForm") // user, manager, admin 방향의 접속은 /login으로 이동시킨다.
-                .loginProcessingUrl("/login"); // login 주소가 호출이 되면 시큐리티가 낚아채서 대신 로그인을 진행함.
+                .loginProcessingUrl("/login") // login 주소가 호출이 되면 시큐리티가 낚아채서 대신 로그인을 진행함.
+                .defaultSuccessUrl("/"); // 로그인이 성공하면 자동으로 /로 이동 -> 다른 Url에서 로그인으로 접근하는 것이 아닌 /loginForm에서 접근해서 로그인 성공 시 /로 이동
     }
 }

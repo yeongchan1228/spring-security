@@ -1,5 +1,6 @@
 package springStudy.jwt.auth;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,10 +9,13 @@ import springStudy.jwt.entity.User;
 import java.util.ArrayList;
 import java.util.Collection;
 
-@RequiredArgsConstructor
 public class PrincipalDetails implements UserDetails {
 
-    private final User user;
+    private User user;
+
+    public PrincipalDetails(User user) {
+        this.user = user;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

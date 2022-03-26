@@ -6,7 +6,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.web.filter.CorsFilter;
+import springStudy.jwt.filter.MyFilter3;
 
 //@CrossOrigin 인증이 필요한 모든 요청은 해결 X
 @Configuration
@@ -18,7 +21,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-
+//        http.addFilterBefore(new MyFilter3(), SecurityContextPersistenceFilter.class); // 내가 만든 필터 3이 모든 필터보다 가장 먼저 실행된다.
+//        http.addFilterBefore(new MyFilter3(), BasicAuthenticationFilter.class); // 시큐리티 필터 체인이 우리가 등록한 필터보다 먼저 실행된다.
         /**
          * 이렇게 설정하면 내가 세션을 사용하고 있지 않으므로
          * 인증이 필요하지 않은 사이트는 전부 통과된다.

@@ -1,8 +1,6 @@
 package springStudy.jwt.entity;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -18,4 +16,11 @@ public class User {
 
     @Enumerated(value = EnumType.STRING)
     private Role role;
+
+    @Builder(builderMethodName = "createUser")
+    public User(String username, String password, Role role) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
 }

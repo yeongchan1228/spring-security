@@ -1,6 +1,9 @@
 package springStudy.jwt.filter.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,6 +18,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.Key;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 스프링 시큐리티의 UsernamePasswordAuthenticationFilter
@@ -79,7 +86,23 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
      * jwt 토큰을 만들어서 request 응답한 사용자에게 jwt 토큰 응답
      */
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        super.successfulAuthentication(request, response, chain, authResult);
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response
+            , FilterChain chain, Authentication authResult) throws IOException, ServletException {
+
+        PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
+
+        Map<String, Object> payloads = new HashMap<>();
+        payloads.put("id", principalDetails.getUser().getId());
+        payloads.put("username", principalDetails.getUser().getUsername());
+
+
+        String jwtToken = Jwts.builder()
+                .setSubject("cos토큰")
+                .setExpiration(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
+                .setClaims(payloads)
+                .signWith(SignatureAlgorithm.HS512, JwtProperties.SECRET.getBytes())
+                .compact();
+
+        response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtToken);
     }
 }

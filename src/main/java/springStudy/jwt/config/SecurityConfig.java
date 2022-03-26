@@ -9,7 +9,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.web.filter.CorsFilter;
 import springStudy.jwt.filter.jwt.JwtAuthenticationFilter;
+import springStudy.jwt.filter.jwt.JwtAuthorizationFilter;
 import springStudy.jwt.filter.jwt.JwtTemporaryTokenFilter;
+import springStudy.jwt.repository.UserRepository;
 
 //@CrossOrigin 인증이 필요한 모든 요청은 해결 X
 @Configuration
@@ -18,11 +20,12 @@ import springStudy.jwt.filter.jwt.JwtTemporaryTokenFilter;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final CorsFilter corsFilter;
+    private final UserRepository userRepository;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        http.addFilterBefore(new JwtTemporaryTokenFilter(), SecurityContextPersistenceFilter.class);
+//        http.addFilterBefore(new JwtTemporaryTokenFilter(), SecurityContextPersistenceFilter.class); // 필터 중에서 가장 먼저 실행됨.
 //        http.addFilterBefore(new MyFilter3(), SecurityContextPersistenceFilter.class); // 내가 만든 필터 3이 모든 필터보다 가장 먼저 실행된다.
 //        http.addFilterBefore(new MyFilter3(), BasicAuthenticationFilter.class); // 시큐리티 필터 체인이 우리가 등록한 필터보다 먼저 실행된다.
         /**
@@ -47,6 +50,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 파라미터로 AuthenticationManager를 넘겨야 한다.
                 // AuthenticationManager가 로그인을 진행하는 객체
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);// 스프링 시큐리티가 세션을 생성하지 않겠다.
 
                 http

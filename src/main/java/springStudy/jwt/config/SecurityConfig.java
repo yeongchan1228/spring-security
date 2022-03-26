@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.web.filter.CorsFilter;
+import springStudy.jwt.filter.jwt.JwtAuthenticationFilter;
 import springStudy.jwt.filter.jwt.JwtTemporaryTokenFilter;
 
 //@CrossOrigin 인증이 필요한 모든 요청은 해결 X
@@ -34,12 +35,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 기본적인 http 로그인 방식을 사용 X
         // Bearer 방식을 사용하기 위해 설정
         http.csrf().disable()
-                .formLogin().disable() // 폼 로그인 사용 X -> jwt 서버이기 때문에 필요가 없음 -> 폼 태그를 만들어서 로그인 X
-                .httpBasic().disable()// 헤더에 유저 이름과 비밀번호를 전달하는 방식으로 사용 X -> http 방식만 사용해서 쿠키를 인증하기 때문에
+                // 폼 로그인 사용 X -> jwt 서버이기 때문에 필요가 없음 -> 폼 태그를 만들어서 로그인 X
+                .formLogin().disable()
+                // 헤더에 유저 이름과 비밀번호를 전달하는 방식으로 사용 X -> http 방식만 사용해서 쿠키를 인증하기 때문에
                 // 자바스크립트 같은 곳에서(출처가 다른 곳에서) 요청하는 것을 거부(CORS 정책)한다. 이런 이유 때문에 httpBasic을 사용해서
                 // 요청 시 마다 Authorization 영역에 아이디랑 비밀번호를 같이 전달하는데 이 방식은 매우 안좋다(서버는 https를 사용해야 한다.)
                 // -> 쿠키, 세션, jwt를 사용하는 의미가 없어짐.
                 // 따라서 우리는 Authorization 영역에 토큰(jwt)를 넣어서 인증한다. -> 이 방식이 Bearer 방식 -> 노출이 되어도 조금 안전
+                .httpBasic().disable()
+                // UsernamePasswordAuthenticationFilter 동작하게 하기 위한 필터 추가
+                // 파라미터로 AuthenticationManager를 넘겨야 한다.
+                // AuthenticationManager가 로그인을 진행하는 객체
+                .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);// 스프링 시큐리티가 세션을 생성하지 않겠다.
 
                 http

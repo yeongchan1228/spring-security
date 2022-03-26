@@ -1,4 +1,4 @@
-package springStudy.jwt.filter;
+package springStudy.jwt.filter.jwt;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.json.UTF8DataInputJsonParser;

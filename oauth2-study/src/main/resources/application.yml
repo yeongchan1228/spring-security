@@ -1,0 +1,19 @@
+server:
+  port: 8081
+
+spring:
+  config:
+    import: secret.yml
+
+  jpa:
+    database: mysql
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    open-in-view: false
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/study
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
